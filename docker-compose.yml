@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Service
+  db:
+    image: postgres:13
+    container_name: postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: mydb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    ports:
+      - "5432:5432"  # Expose PostgreSQL port to host
+    restart: always
+
+  # PgAdmin Service (For managing PostgreSQL)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "80:80"  # Expose PgAdmin's web interface on port 80
+    depends_on:
+      - db
+    networks:
+      - app-network
+    restart: always
+
+  # Neo4j Service
+  neo4j:
+    image: neo4j:latest
+    container_name: neo4j
+    environment:
+      NEO4J_AUTH: neo4j/password  # Change the password for security purposes
+    ports:
+      - "7474:7474"   # HTTP API
+      - "7687:7687"   # Bolt protocol for Neo4j
+    networks:
+      - app-network
+    restart: always
+ 
+volumes:
+  postgres_data: {}
+
+networks:
+  app-network:
+    driver: bridge
